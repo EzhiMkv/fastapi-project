@@ -42,3 +42,5 @@ websockets==12.0
 pytest
 httpx
 passlib[bcrypt]
+pre-commit
+python-jose

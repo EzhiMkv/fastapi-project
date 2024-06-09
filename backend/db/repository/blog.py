@@ -18,14 +18,16 @@ def retrieve_blog(db: Session, id: int) -> Blog:
 
 
 def list_blogs(db: Session):
-    blogs = db.query(Blog).filter(Blog.is_active==True).all()
+    blogs = db.query(Blog).filter(Blog.is_active == True).all()
     return blogs
 
 
-def update_blog(id: int, blog: UpdateBlog, author_id: int, db:Session) -> Blog:
+def update_blog(id: int, blog: UpdateBlog, author_id: int, db: Session):
     blog_in_db = db.query(Blog).filter(Blog.id == id).first()
     if not blog_in_db:
-        return
+        return {"error": f"Блог с ID {id} не найден"}
+    if not blog_in_db.author_id == author_id:  # new
+        return {"error": "Только автор может изменить блог"}
     blog_in_db.title = blog.title
     blog_in_db.content = blog.content
     db.add(blog_in_db)
@@ -33,10 +35,12 @@ def update_blog(id: int, blog: UpdateBlog, author_id: int, db:Session) -> Blog:
     return blog_in_db
 
 
-def delete_blog(id: int, author_id:int, db:Session):
+def delete_blog(id: int, author_id: int, db: Session):
     blog_in_db = db.query(Blog).filter(Blog.id == id)
     if not blog_in_db.first():
         return {"error": f"Блог с ID {id} не найден"}
+    if not blog_in_db.author_id == author_id:  # new
+        return {"error": "Только автор может удалить блог"}
     blog_in_db.delete()
     db.commit()
     return {"msg": f"Блог с ID {id} удален"}
